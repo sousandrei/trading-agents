@@ -8,8 +8,6 @@ import (
 	"github.com/sousandrei/trading-agents/internal/tools/apiclient"
 )
 
-// TODO: validation for args and url parsing
-
 const baseURL = "https://finnhub.io/api/v1"
 
 type Client struct {
@@ -42,14 +40,17 @@ func (c *Client) getCompanyProfile(
 		return nil, fmt.Errorf("ticker symbol is required")
 	}
 
-	url := baseURL + "/stock/profile2?symbol=" + symbol
+	reqURL, _ := url.Parse(baseURL + "/stock/profile2")
+
+	query := reqURL.Query()
+	query.Set("symbol", symbol)
 
 	headers := map[string]string{
 		"X-Finnhub-Token": c.apiKey,
 	}
 
 	var res map[string]any
-	err := c.apiClient.Get(ctx, url, headers, &res)
+	err := c.apiClient.Get(ctx, reqURL.String(), headers, &res)
 	if err != nil {
 		return nil, err
 	}

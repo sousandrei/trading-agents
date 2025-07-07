@@ -9,8 +9,6 @@ import (
 	"github.com/sousandrei/trading-agents/internal/tools/apiclient"
 )
 
-// TODO: validation for args and url parsing
-
 const baseURL = "https://backend.simfin.com/api/v3"
 
 type Client struct {
@@ -49,8 +47,19 @@ func (c *Client) getFinancialStatements(
 		return nil, fmt.Errorf("ticker symbol is required")
 	}
 
-	endDate := time.Now().Format("2006-01-02")
-	startDate := time.Now().AddDate(-1, 0, 0).Format("2006-01-02")
+	var endDate string
+	if end, ok := args["endDate"].(string); ok && end != "" {
+		endDate = end
+	} else {
+		endDate = time.Now().Format("2006-01-02")
+	}
+
+	var startDate string
+	if start, ok := args["startDate"].(string); ok && start != "" {
+		startDate = start
+	} else {
+		startDate = time.Now().AddDate(-1, 0, 0).Format("2006-01-02")
+	}
 
 	reqURL, _ := url.Parse(baseURL + "/companies/statements/compact")
 

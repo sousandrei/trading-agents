@@ -35,6 +35,9 @@ func Run(
 		return nil, fmt.Errorf("error running manager: %w", err)
 	}
 
+	// TODO: remove, dev only
+	agents.WriteMessagesToFile("trader", "trader", res)
+
 	return &agents.Agent{
 		Prompt:   prompt,
 		Messages: res,

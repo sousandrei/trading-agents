@@ -43,7 +43,7 @@ func Run(
 		for _, name := range names {
 			agent := riskAgents[name]
 
-			var prompt string
+			prompt := ""
 
 			if round == 0 {
 				prompt = fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
@@ -55,13 +55,13 @@ func Run(
 						continue
 					}
 
-					prompt = fmt.Sprintf("last %s argument: %s", a, "SUP")
+					prompt += fmt.Sprintf("last %s argument: %s\n\n", a, riskAgents[a].Messages[len(riskAgents[a].Messages)-1].Text)
 				}
 			}
 
-			opts = append(opts, llms.WithMessages(agent.Messages))
+			o := append(opts, llms.WithMessages(agent.Messages))
 
-			res, err := llm.Generate(ctx, prompt, opts...)
+			res, err := llm.Generate(ctx, prompt, o...)
 			if err != nil {
 				return nil, fmt.Errorf("error running bull researcher: %w", err)
 			}
@@ -83,15 +83,32 @@ func Run(
 		Messages: res,
 	}
 
+	// TODO: remove, dev only
+	for name, agent := range riskAgents {
+		agents.WriteMessagesToFile("risk", name, agent.Messages)
+	}
+
 	return riskAgents, nil
 }
 
 func AppendOutput(prompt string, risk map[string]agents.Agent) string {
 	prompt += fmt.Sprintf("%s\n\n\n\nRisk team debate:", prompt)
 
+	modelMessages := map[string][]llms.Message{}
+
+	for name, agent := range risk {
+		modelMessages[name] = []llms.Message{}
+
+		for _, message := range agent.Messages {
+			if message.Role == llms.RoleModel {
+				modelMessages[name] = append(modelMessages[name], message)
+			}
+		}
+	}
+
 	for round := range 3 {
-		for name, agent := range risk {
-			prompt += fmt.Sprintf("\n\n%s: %s", name, agent.Messages[round].Text)
+		for _, name := range []string{"aggressive", "conservative", "neutral"} {
+			prompt += fmt.Sprintf("\n\n%s: %s", name, modelMessages[name][round].Text)
 		}
 	}
 

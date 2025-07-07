@@ -50,9 +50,9 @@ func Run(
 				}
 			}
 
-			opts = append(opts, llms.WithMessages(agent.Messages))
+			o := append(opts, llms.WithMessages(agent.Messages))
 
-			res, err := llm.Generate(ctx, prompt, opts...)
+			res, err := llm.Generate(ctx, prompt, o...)
 			if err != nil {
 				return nil, fmt.Errorf("error running bull researcher: %w", err)
 			}
@@ -74,15 +74,31 @@ func Run(
 		Messages: res,
 	}
 
+	// TODO: remove, dev only
+	for name, agent := range researchers {
+		agents.WriteMessagesToFile("researchers", name, agent.Messages)
+	}
+
 	return researchers, nil
 }
 
 func AppendOutput(prompt string, researchers map[string]agents.Agent) string {
 	prompt += fmt.Sprintf("%s\n\n\n\nResearch team debate:", prompt)
 
+	modelMessages := map[string][]llms.Message{}
+
+	for name, agent := range researchers {
+		modelMessages[name] = []llms.Message{}
+		for _, message := range agent.Messages {
+			if message.Role == llms.RoleModel {
+				modelMessages[name] = append(modelMessages[name], message)
+			}
+		}
+	}
+
 	for round := range 3 {
-		for name, agent := range researchers {
-			prompt += fmt.Sprintf("\n\n%s: %s", name, agent.Messages[round].Text)
+		for _, name := range []string{"bull", "bear"} {
+			prompt += fmt.Sprintf("\n\n%s: %s", name, modelMessages[name][round].Text)
 		}
 	}
 

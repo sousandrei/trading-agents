@@ -77,6 +77,11 @@ func Run(
 		return nil, fmt.Errorf("failed to run analysts: %w", err)
 	}
 
+	// TODO: remove, dev only
+	for name, agent := range analysts {
+		agents.WriteMessagesToFile("analysts", name, agent.Messages)
+	}
+
 	return analysts, nil
 }
 

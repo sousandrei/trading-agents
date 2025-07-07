@@ -3,6 +3,7 @@ package researchers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/sousandrei/trading-agents/internal/agents"
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
@@ -38,7 +39,7 @@ func Run(
 			var prompt string
 
 			if round == 0 {
-				prompt = fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
+				prompt = fmt.Sprintf("%s\nTicker to be analysed: %s", agent.Prompt, ticker)
 				prompt = analysts.AppendOutput(prompt, analystAgents)
 			} else {
 				for r, a := range researchers {
@@ -50,11 +51,13 @@ func Run(
 				}
 			}
 
-			o := append(opts, llms.WithMessages(agent.Messages))
+			opts := append(opts, llms.WithMessages(agent.Messages))
 
-			res, err := llm.Generate(ctx, prompt, o...)
+			slog.Info("Running researcher", "name", researcher, "round", round, "ticker", ticker)
+
+			res, err := llm.Generate(ctx, prompt, opts...)
 			if err != nil {
-				return nil, fmt.Errorf("error running bull researcher: %w", err)
+				return nil, fmt.Errorf("error running %s researcher: %w", researcher, err)
 			}
 
 			researchers[researcher] = agents.Agent{
@@ -66,7 +69,7 @@ func Run(
 
 	res, err := llm.Generate(ctx, AppendOutput(managerPrompt, researchers), opts...)
 	if err != nil {
-		return nil, fmt.Errorf("error running manager: %w", err)
+		return nil, fmt.Errorf("error running research manager: %w", err)
 	}
 
 	researchers["manager"] = agents.Agent{

@@ -3,6 +3,7 @@ package analysts
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 
@@ -47,6 +48,8 @@ func Run(
 
 	for name, agent := range analysts {
 		g.Go(func() error {
+			opts := opts
+
 			if agent.Tools {
 				opts = append(opts, llms.WithTools())
 			}
@@ -55,12 +58,14 @@ func Run(
 				opts = append(opts, llms.WithSearch())
 			}
 
-			res, err := llm.Generate(ctx, agent.Prompt, opts...)
-			if err != nil {
-				return fmt.Errorf("error running analyst %s: %w", agent.Prompt, err)
-			}
+			slog.Info("Running analyst", "name", name, "ticker", ticker)
 
-			prompt := fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
+			prompt := fmt.Sprintf("%s\nTicker to be analysed: %s", agent.Prompt, ticker)
+
+			res, err := llm.Generate(ctx, prompt, opts...)
+			if err != nil {
+				return fmt.Errorf("error running analyst %s: %w", name, err)
+			}
 
 			analysts[name] = agents.Agent{
 				Prompt:   prompt,
@@ -74,7 +79,7 @@ func Run(
 	}
 
 	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("failed to run analysts: %w", err)
+		return nil, err
 	}
 
 	// TODO: remove, dev only

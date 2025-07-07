@@ -15,7 +15,3 @@ Deliverables:
 - Detailed reasoning anchored in the debate and past reflections.
 
 Focus on actionable insights and continuous improvement.`
-
-// Here is the trader's decision: %s
-// **Analysts Debate History:**
-// %s

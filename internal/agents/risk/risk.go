@@ -3,6 +3,7 @@ package risk
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/sousandrei/trading-agents/internal/agents"
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
@@ -46,7 +47,7 @@ func Run(
 			prompt := ""
 
 			if round == 0 {
-				prompt = fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
+				prompt = fmt.Sprintf("%s\nTicker to be analysed: %s", agent.Prompt, ticker)
 				prompt = analysts.AppendOutput(prompt, analystAgents)
 				prompt = trader.AppendOutput(prompt, traderAgent)
 			} else {
@@ -59,9 +60,11 @@ func Run(
 				}
 			}
 
-			o := append(opts, llms.WithMessages(agent.Messages))
+			opts := append(opts, llms.WithMessages(agent.Messages))
 
-			res, err := llm.Generate(ctx, prompt, o...)
+			slog.Info("Running risk agent", "name", name, "round", round, "ticker", ticker)
+
+			res, err := llm.Generate(ctx, prompt, opts...)
 			if err != nil {
 				return nil, fmt.Errorf("error running bull researcher: %w", err)
 			}
@@ -75,7 +78,7 @@ func Run(
 
 	res, err := llm.Generate(ctx, AppendOutput(managerPrompt, riskAgents), opts...)
 	if err != nil {
-		return nil, fmt.Errorf("error running manager: %w", err)
+		return nil, fmt.Errorf("error running risk manager: %w", err)
 	}
 
 	riskAgents["manager"] = agents.Agent{

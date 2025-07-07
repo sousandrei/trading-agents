@@ -11,10 +11,3 @@ Engage by questioning their optimism and emphasizing the potential downsides the
 Address each of their counterpoints to showcase why a conservative stance is ultimately the safest path for the firm's assets.
 Focus on debating and critiquing their arguments to demonstrate the strength of a low-risk strategy over their approaches.
 Output conversationally as if you are speaking without any special formatting.`
-
-// Here is the trader's decision: %s
-// Market Research Report: %s
-// Social Media Sentiment Report: %s
-// Latest World Affairs Report: %s
-// Company Fundamentals Report: %s
-// Here is the current conversation history: %s Here is the last response from the risky analyst: %s Here is the last response from the neutral analyst: %s.

@@ -3,6 +3,7 @@ package trader
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/sousandrei/trading-agents/internal/agents"
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
@@ -26,9 +27,11 @@ func Run(
 		opts = []llms.GenerateOption{}
 	}
 
-	prompt := fmt.Sprintf("%s\nStock in question: %s", traderPrompt, ticker)
+	prompt := fmt.Sprintf("%s\nTicker to be analysed: %s", traderPrompt, ticker)
 	prompt = analysts.AppendOutput(prompt, analystAgents)
 	prompt = researchers.AppendManagerOutput(prompt, researcherAgents)
+
+	slog.Info("Running trader agent", "ticker", ticker)
 
 	res, err := llm.Generate(ctx, prompt, opts...)
 	if err != nil {

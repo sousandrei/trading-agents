@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
 	"github.com/sousandrei/trading-agents/internal/agents/researchers"
@@ -16,24 +17,28 @@ func Analyze(
 	ticker string,
 ) (string, error) {
 	opts := []llms.GenerateOption{
-		llms.WithDryRun(),
+		// llms.WithDryRun(),
 	}
 
+	slog.Info("Running analysis for ticker", "ticker", ticker)
 	analystAgents, err := analysts.Run(ctx, llm, ticker, opts...)
 	if err != nil {
 		return "", err
 	}
 
+	slog.Info("Running research for ticker", "ticker", ticker)
 	researchersAgents, err := researchers.Run(ctx, llm, ticker, analystAgents, opts...)
 	if err != nil {
 		return "", err
 	}
 
+	slog.Info("Running trading strategy for ticker", "ticker", ticker)
 	traderAgent, err := trader.Run(ctx, llm, ticker, analystAgents, researchersAgents, opts...)
 	if err != nil {
 		return "", err
 	}
 
+	slog.Info("Running risk assessment for ticker", "ticker", ticker)
 	riskAgents, err := risk.Run(ctx, llm, ticker, researchersAgents, traderAgent, opts...)
 	if err != nil {
 		return "", err

@@ -17,10 +17,17 @@ type Client struct {
 
 func New(
 	apiKey string,
-) *Client {
-	return &Client{
-		apiKey: apiKey,
+	opts ...apiclient.Options,
+) (*Client, error) {
+	apiClient, err := apiclient.New(opts...)
+	if err != nil {
+		return nil, err
 	}
+
+	return &Client{
+		apiClient: apiClient,
+		apiKey:    apiKey,
+	}, nil
 }
 
 func (c *Client) GetFunctions() map[string]apiclient.Fetch {
@@ -44,6 +51,8 @@ func (c *Client) getCompanyProfile(
 
 	query := reqURL.Query()
 	query.Set("symbol", symbol)
+
+	reqURL.RawQuery = query.Encode()
 
 	headers := map[string]string{
 		"X-Finnhub-Token": c.apiKey,
@@ -72,6 +81,8 @@ func (c *Client) getInsiderTransactions(
 	query := reqURL.Query()
 	query.Set("symbol", symbol)
 
+	reqURL.RawQuery = query.Encode()
+
 	headers := map[string]string{
 		"X-Finnhub-Token": c.apiKey,
 	}
@@ -98,6 +109,8 @@ func (c *Client) getInsiderSentiment(
 
 	query := reqURL.Query()
 	query.Set("symbol", symbol)
+
+	reqURL.RawQuery = query.Encode()
 
 	headers := map[string]string{
 		"X-Finnhub-Token": c.apiKey,

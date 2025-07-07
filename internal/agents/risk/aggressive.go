@@ -13,10 +13,3 @@ Engage actively by addressing any specific concerns raised, refuting the weaknes
 Maintain a focus on debating and persuading, not just presenting data.
 Challenge each counterpoint to underscore why a high-risk approach is optimal.
 Output conversationally as if you are speaking without any special formatting.`
-
-// Here is the trader's decision: %s
-// Market Research Report: %s
-// Social Media Sentiment Report: %s
-// Latest World Affairs Report: %s
-// Company Fundamentals Report: %s
-// Here is the current conversation history: %s Here are the last arguments from the conservative analyst: %s Here are the last arguments from the neutral analyst: %s.

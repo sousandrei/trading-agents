@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"sync"
@@ -15,24 +16,39 @@ import (
 type Client struct {
 	httpClient *http.Client
 
-	mu    sync.Mutex
-	cache map[string][]byte
+	mu        sync.Mutex
+	cachePath string
+	cache     map[string][]byte
 }
 
-func New(
-	timeout time.Duration,
-) (*Client, error) {
-	cache, err := loadCache()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load cache: %w", err)
+type Options func(*Client) error
+
+func WithTimeout(timeout time.Duration) Options {
+	return func(c *Client) error {
+		c.httpClient.Timeout = timeout
+		return nil
+	}
+}
+
+func WithCache(filePath string) Options {
+	return func(c *Client) error {
+		c.cachePath = filePath
+		return c.loadCache()
+	}
+}
+
+func New(opts ...Options) (*Client, error) {
+	c := &Client{
+		httpClient: &http.Client{},
 	}
 
-	return &Client{
-		httpClient: &http.Client{
-			Timeout: timeout,
-		},
-		cache: cache,
-	}, nil
+	for _, opt := range opts {
+		if err := opt(c); err != nil {
+			return nil, fmt.Errorf("failed to apply option: %w", err)
+		}
+	}
+
+	return c, nil
 }
 
 func (c *Client) Get(
@@ -77,11 +93,13 @@ func (c *Client) Get(
 	return json.Unmarshal(bs, res)
 }
 
-// TODO: toggable cache mechanism by environment variable, maybe bucket storage or redis?
-
-const cachePath = "data/cache.bin"
+// TODO: maybe bucket storage or redis?
 
 func (c *Client) UpdateCache(key string, value []byte) error {
+	if c.cachePath == "" {
+		return nil
+	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -91,7 +109,7 @@ func (c *Client) UpdateCache(key string, value []byte) error {
 
 	c.cache[key] = value
 
-	f, err := os.OpenFile(cachePath, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(c.cachePath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open cache file: %w", err)
 	}
@@ -104,10 +122,10 @@ func (c *Client) UpdateCache(key string, value []byte) error {
 	return nil
 }
 
-func loadCache() (map[string][]byte, error) {
-	f, err := os.OpenFile(cachePath, os.O_RDWR|os.O_CREATE, 0644)
+func (c *Client) loadCache() error {
+	f, err := os.OpenFile(c.cachePath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open cache file: %w", err)
+		return fmt.Errorf("failed to open cache file: %w", err)
 	}
 	defer f.Close()
 
@@ -115,8 +133,13 @@ func loadCache() (map[string][]byte, error) {
 
 	err = gob.NewDecoder(f).Decode(&cache)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode cache: %w", err)
+		// TODO: maybe try a different approach
+		c.cache = make(map[string][]byte) // if decoding fails, return an empty cache
+		return nil
 	}
+	c.cache = cache
 
-	return cache, nil
+	slog.Info("Cache loaded", "size", len(cache))
+
+	return nil
 }

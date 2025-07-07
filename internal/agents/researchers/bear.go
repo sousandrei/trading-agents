@@ -12,13 +12,4 @@ Key points to focus on:
 - Bull Counterpoints: Critically analyze the bull argument with specific data and sound reasoning, exposing weaknesses or over-optimistic assumptions.
 - Engagement: Present your argument in a conversational style, directly engaging with the bull analyst's points and debating effectively rather than simply listing facts.
 
-Use the provided information to deliver a compelling bear argument, refute the bull's claims, and engage in a dynamic debate that demonstrates the risks and weaknesses of investing in the stock.
-You must also address reflections and learn from lessons and mistakes you made in the past.`
-
-// Resources available:
-// Market research report: {market_research_report}
-// Social media sentiment report: {sentiment_report}
-// Latest world affairs news: {news_report}
-// Company fundamentals report: {fundamentals_report}
-// Conversation history of the debate: {history}
-// Last bull argument: {current_response}
+Use the provided information to deliver a compelling bear argument, refute the bull's claims, and engage in a dynamic debate that demonstrates the risks and weaknesses of investing in the stock.`

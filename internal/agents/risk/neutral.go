@@ -10,11 +10,3 @@ Engage actively by analyzing both sides critically, addressing weaknesses in the
 Challenge each of their points to illustrate why a moderate risk strategy might offer the best of both worlds, providing growth potential while safeguarding against extreme volatility.
 Focus on debating rather than simply presenting data, aiming to show that a balanced view can lead to the most reliable outcomes.
 Output conversationally as if you are speaking without any special formatting.`
-
-// Here is the trader's decision: %s
-// Market Research Report: %s
-// Social Media Sentiment Report: %s
-// Latest World Affairs Report: %s
-// Company Fundamentals Report: %s
-// Here is the current conversation history: %s Here is the last response from the risky analyst: %s Here is the last response from the safe analyst: %s.
-// If there are no responses from the other viewpoints, do not halluncinate and just present your point.

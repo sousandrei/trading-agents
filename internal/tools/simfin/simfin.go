@@ -18,10 +18,17 @@ type Client struct {
 
 func New(
 	apiKey string,
-) *Client {
-	return &Client{
-		apiKey: apiKey,
+	opts ...apiclient.Options,
+) (*Client, error) {
+	apiClient, err := apiclient.New(opts...)
+	if err != nil {
+		return nil, err
 	}
+
+	return &Client{
+		apiClient: apiClient,
+		apiKey:    apiKey,
+	}, nil
 }
 
 func (c *Client) GetFunctions() map[string]apiclient.Fetch {
@@ -70,15 +77,19 @@ func (c *Client) getFinancialStatements(
 	query.Set("start", startDate)
 	query.Set("end", endDate)
 
+	reqURL.RawQuery = query.Encode()
+
 	headers := map[string]string{
 		"Authorization": "api-key " + c.apiKey,
 	}
 
-	var res map[string]any
+	var res any
 	err := c.apiClient.Get(ctx, reqURL.String(), headers, &res)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return map[string]any{
+		"data": res,
+	}, nil
 }

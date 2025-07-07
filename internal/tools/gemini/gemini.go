@@ -3,6 +3,7 @@ package gemini
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"google.golang.org/genai"
 
@@ -117,29 +118,38 @@ func (c *Client) Generate(
 	}
 
 	for {
+		slog.Info("Received response", "text", res.Text(), "function_calls", res.FunctionCalls())
+
 		if len(res.FunctionCalls()) == 0 {
 			break
 		}
 
-		parts := []*genai.Part{}
+		parts := []*genai.Part{
+			{
+				Text: prompt,
+			},
+		}
 
 		for _, call := range res.FunctionCalls() {
-			if fn, ok := fns[call.Name]; ok {
-				res, err := fn(ctx, call.Args)
-				if err != nil {
-					return nil, fmt.Errorf("error calling function %s: %w", call.Name, err)
-				}
-
-				parts = append(parts, &genai.Part{
-					FunctionResponse: &genai.FunctionResponse{
-						ID:       call.ID,
-						Name:     call.Name,
-						Response: res,
-					},
-				})
-			} else {
+			fn, ok := fns[call.Name]
+			if !ok {
 				return nil, fmt.Errorf("function %s not found", call.Name)
 			}
+
+			slog.Info("Calling function", "name", call.Name, "args", call.Args)
+
+			res, err := fn(ctx, call.Args)
+			if err != nil {
+				return nil, fmt.Errorf("error calling function %s: %w", call.Name, err)
+			}
+
+			parts = append(parts, &genai.Part{
+				FunctionResponse: &genai.FunctionResponse{
+					ID:       call.ID,
+					Name:     call.Name,
+					Response: res,
+				},
+			})
 		}
 
 		content = []*genai.Content{

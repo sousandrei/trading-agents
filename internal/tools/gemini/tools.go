@@ -6,25 +6,29 @@ import (
 )
 
 func (c *Client) apiTools() (map[string]apiclient.Fetch, []*genai.Tool) {
-	fns := map[string]apiclient.Fetch{}
-	tools := []*genai.Tool{}
+	finnhubFnMap, finnhubFns := c.finnhubTools()
+	simfinFnMap, simfinFns := c.simfinTools()
 
-	finnhubFns, finnhubTools := c.finnhubTools()
-	simfinFns, simfinTools := c.simfinTools()
+	fnMap := map[string]apiclient.Fetch{}
+	fns := []*genai.FunctionDeclaration{}
 
-	tools = append(tools, finnhubTools...)
-	tools = append(tools, simfinTools...)
+	fns = append(fns, finnhubFns...)
+	fns = append(fns, simfinFns...)
 
 	for _, v := range []map[string]apiclient.Fetch{
-		finnhubFns,
-		simfinFns,
+		finnhubFnMap,
+		simfinFnMap,
 	} {
 		for fnName, fn := range v {
-			fns[fnName] = fn
+			fnMap[fnName] = fn
 		}
 	}
 
-	return fns, tools
+	return fnMap, []*genai.Tool{
+		&genai.Tool{
+			FunctionDeclarations: fns,
+		},
+	}
 }
 
 func searchTool() []*genai.Tool {
@@ -33,70 +37,59 @@ func searchTool() []*genai.Tool {
 	}
 }
 
-func (c *Client) finnhubTools() (map[string]apiclient.Fetch, []*genai.Tool) {
-	fns := c.finnhub.GetFunctions()
+func (c *Client) finnhubTools() (map[string]apiclient.Fetch, []*genai.FunctionDeclaration) {
+	fnMap := c.finnhub.GetFunctions()
 
-	tools := []*genai.Tool{
+	fns := []*genai.FunctionDeclaration{
 		{
-			FunctionDeclarations: []*genai.FunctionDeclaration{
-				{
-					Name:        "get_insider_transactions",
-					Behavior:    genai.BehaviorBlocking,
-					Description: "Fetch insider transactions for a given stock ticker.",
-					Parameters: &genai.Schema{
-						Type: "object",
-						Properties: map[string]*genai.Schema{
-							"ticker": {
-								Type:        "string",
-								Description: "The ticker symbol of the stock to query.",
-							},
-						},
+			Name:        "get_insider_transactions",
+			Description: "Fetch insider transactions for a given stock ticker.",
+			Parameters: &genai.Schema{
+				Type: "object",
+				Properties: map[string]*genai.Schema{
+					"ticker": {
+						Type:        "string",
+						Description: "The ticker symbol of the stock to query.",
 					},
 				},
-				{
-					Name:        "get_insider_sentiment",
-					Behavior:    genai.BehaviorBlocking,
-					Description: "Fetch insider sentiment for a given stock ticker.",
-					Parameters: &genai.Schema{
-						Type: "object",
-						Properties: map[string]*genai.Schema{
-							"ticker": {
-								Type:        "string",
-								Description: "The ticker symbol of the stock to query.",
-							},
-						},
+			},
+		},
+		{
+			Name:        "get_insider_sentiment",
+			Description: "Fetch insider sentiment for a given stock ticker.",
+			Parameters: &genai.Schema{
+				Type: "object",
+				Properties: map[string]*genai.Schema{
+					"ticker": {
+						Type:        "string",
+						Description: "The ticker symbol of the stock to query.",
 					},
 				},
 			},
 		},
 	}
 
-	return fns, tools
+	return fnMap, fns
 }
 
-func (c *Client) simfinTools() (map[string]apiclient.Fetch, []*genai.Tool) {
-	fns := c.simfin.GetFunctions()
+func (c *Client) simfinTools() (map[string]apiclient.Fetch, []*genai.FunctionDeclaration) {
+	fnMap := c.simfin.GetFunctions()
 
-	tools := []*genai.Tool{
+	fns := []*genai.FunctionDeclaration{
 		{
-			FunctionDeclarations: []*genai.FunctionDeclaration{
-				{
-					Name:        "get_financial_statements",
-					Behavior:    genai.BehaviorBlocking,
-					Description: "Fetch financial statements for a given stock ticker.",
-					Parameters: &genai.Schema{
-						Type: "object",
-						Properties: map[string]*genai.Schema{
-							"ticker": {
-								Type:        "string",
-								Description: "The ticker symbol of the stock to query.",
-							},
-						},
+			Name:        "get_financial_statements",
+			Description: "Fetch financial statements for a given stock ticker.",
+			Parameters: &genai.Schema{
+				Type: "object",
+				Properties: map[string]*genai.Schema{
+					"ticker": {
+						Type:        "string",
+						Description: "The ticker symbol of the stock to query.",
 					},
 				},
 			},
 		},
 	}
 
-	return fns, tools
+	return fnMap, fns
 }

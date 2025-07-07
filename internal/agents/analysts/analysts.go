@@ -60,8 +60,10 @@ func Run(
 				return fmt.Errorf("error running analyst %s: %w", agent.Prompt, err)
 			}
 
+			prompt := fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
+
 			analysts[name] = agents.Agent{
-				Prompt:   agent.Prompt,
+				Prompt:   prompt,
 				Tools:    agent.Tools,
 				Search:   agent.Search,
 				Messages: res,

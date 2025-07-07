@@ -38,7 +38,8 @@ func Run(
 			var prompt string
 
 			if round == 0 {
-				prompt = analysts.AppendOutput(agent.Prompt, analystAgents)
+				prompt = fmt.Sprintf("%s\nStock in question: %s", agent.Prompt, ticker)
+				prompt = analysts.AppendOutput(prompt, analystAgents)
 			} else {
 				for r, a := range researchers {
 					if r == researcher {

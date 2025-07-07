@@ -26,7 +26,8 @@ func Run(
 		opts = []llms.GenerateOption{}
 	}
 
-	prompt := analysts.AppendOutput(traderPrompt, analystAgents)
+	prompt := fmt.Sprintf("%s\nStock in question: %s", traderPrompt, ticker)
+	prompt = analysts.AppendOutput(prompt, analystAgents)
 	prompt = researchers.AppendManagerOutput(prompt, researcherAgents)
 
 	res, err := llm.Generate(ctx, prompt, opts...)

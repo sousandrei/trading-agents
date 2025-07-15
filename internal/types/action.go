@@ -3,15 +3,29 @@ package types
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
 type Action struct {
 	Action string
-	Price  float64
-	Loss   float64
-	Profit float64
+	Price  string
+	Loss   string
+	Profit string
+}
+
+func (a Action) String() string {
+	switch a.Action {
+	case "BUY":
+		return fmt.Sprintf("Action: %s, Price: %s", a.Action, a.Price)
+	case "SELL":
+		return fmt.Sprintf("Action: %s, Price: %s", a.Action, a.Price)
+	case "UPDATE_STOPS":
+		return fmt.Sprintf("Action: %s, Loss: %s, Profit: %s", a.Action, a.Loss, a.Profit)
+	case "HOLD":
+		return fmt.Sprintf("Action: %s", a.Action)
+	default:
+		return fmt.Sprintf("Unknown action: %s", a.Action)
+	}
 }
 
 func priceRegexp(label string) *regexp.Regexp {
@@ -35,12 +49,8 @@ func ParseOutput(output string) (*Action, error) {
 
 	switch action {
 	case "BUY":
-		priceStr := priceRegexp("BUY PRICE").FindStringSubmatch(parts[1])
-
-		price, err := strconv.ParseFloat(priceStr[1], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid BUY PRICE format: %s", priceStr[1])
-		}
+		priceMatches := priceRegexp("BUY PRICE").FindStringSubmatch(parts[1])
+		price := strings.TrimSpace(priceMatches[1])
 
 		return &Action{
 			Action: "BUY",
@@ -48,12 +58,8 @@ func ParseOutput(output string) (*Action, error) {
 		}, nil
 
 	case "SELL":
-		priceStr := priceRegexp("SELL PRICE").FindStringSubmatch(parts[1])
-
-		price, err := strconv.ParseFloat(priceStr[1], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid SELL PRICE format: %s", priceStr[1])
-		}
+		priceMatches := priceRegexp("SELL PRICE").FindStringSubmatch(parts[1])
+		price := strings.TrimSpace(priceMatches[1])
 
 		return &Action{
 			Action: "SELL",
@@ -62,17 +68,10 @@ func ParseOutput(output string) (*Action, error) {
 
 	case "UPDATE_STOPS":
 		lossStr := priceRegexp("LOSS").FindStringSubmatch(parts[1])
-
-		loss, err := strconv.ParseFloat(lossStr[1], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid LOSS format: %s", lossStr[1])
-		}
+		loss := strings.TrimSpace(lossStr[1])
 
 		profitStr := priceRegexp("PROFIT").FindStringSubmatch(parts[2])
-		profit, err := strconv.ParseFloat(profitStr[1], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid PROFIT format: %s", profitStr[1])
-		}
+		profit := strings.TrimSpace(profitStr[1])
 
 		return &Action{
 			Action: "UPDATE_STOPS",

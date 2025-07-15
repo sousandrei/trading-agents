@@ -9,40 +9,45 @@ import (
 	"github.com/sousandrei/trading-agents/internal/agents/risk"
 	"github.com/sousandrei/trading-agents/internal/agents/trader"
 	"github.com/sousandrei/trading-agents/internal/tools/llms"
+	"github.com/sousandrei/trading-agents/internal/types"
 )
 
 func Analyze(
 	ctx context.Context,
 	llm llms.Client,
-	ticker string,
+	positions []types.Position,
 ) (string, error) {
 	opts := []llms.GenerateOption{
 		// llms.WithDryRun(),
 	}
 
-	slog.Info("Running analysis for ticker", "ticker", ticker)
-	analystAgents, err := analysts.Run(ctx, llm, ticker, opts...)
-	if err != nil {
-		return "", err
+	for _, position := range positions {
+		slog.Info("Running analysis for ticker", "ticker", position.Ticker)
+		analystAgents, err := analysts.Run(ctx, llm, position, opts...)
+		if err != nil {
+			return "", err
+		}
+
+		slog.Info("Running research for ticker", "ticker", position.Ticker)
+		researchersAgents, err := researchers.Run(ctx, llm, analystAgents, position, opts...)
+		if err != nil {
+			return "", err
+		}
+
+		slog.Info("Running trading strategy for ticker", "ticker", position.Ticker)
+		traderAgent, err := trader.Run(ctx, llm, analystAgents, researchersAgents, position, opts...)
+		if err != nil {
+			return "", err
+		}
+
+		slog.Info("Running risk assessment for ticker", "ticker", position.Ticker)
+		_, err = risk.Run(ctx, llm, researchersAgents, traderAgent, position, opts...)
+		if err != nil {
+			return "", err
+		}
+
+		break
 	}
 
-	slog.Info("Running research for ticker", "ticker", ticker)
-	researchersAgents, err := researchers.Run(ctx, llm, ticker, analystAgents, opts...)
-	if err != nil {
-		return "", err
-	}
-
-	slog.Info("Running trading strategy for ticker", "ticker", ticker)
-	traderAgent, err := trader.Run(ctx, llm, ticker, analystAgents, researchersAgents, opts...)
-	if err != nil {
-		return "", err
-	}
-
-	slog.Info("Running risk assessment for ticker", "ticker", ticker)
-	riskAgents, err := risk.Run(ctx, llm, ticker, researchersAgents, traderAgent, opts...)
-	if err != nil {
-		return "", err
-	}
-
-	return riskAgents["manager"].Messages[len(riskAgents["manager"].Messages)-1].Text, nil
+	return "", nil
 }

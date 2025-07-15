@@ -9,6 +9,7 @@ import (
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
 	"github.com/sousandrei/trading-agents/internal/agents/researchers"
 	"github.com/sousandrei/trading-agents/internal/tools/llms"
+	"github.com/sousandrei/trading-agents/internal/types"
 )
 
 const traderPrompt = `You are the Lead Trading Agent. Your ultimate responsibility is to synthesize all the provided information from the Analyst, Researcher, and Risk Management teams to make a definitive and actionable trading decision.
@@ -32,20 +33,20 @@ Always conclude your response with 'FINAL TRANSACTION PROPOSAL: **BUY/HOLD/SELL*
 func Run(
 	ctx context.Context,
 	llm llms.Client,
-	ticker string,
 	analystAgents map[string]agents.Agent,
 	researcherAgents map[string]agents.Agent,
+	position types.Position,
 	opts ...llms.GenerateOption,
 ) (*agents.Agent, error) {
 	if opts == nil {
 		opts = []llms.GenerateOption{}
 	}
 
-	prompt := fmt.Sprintf("%s\nTicker to be analysed: %s", traderPrompt, ticker)
+	prompt := fmt.Sprintf("%s\n%s", traderPrompt, position)
 	prompt = analysts.AppendOutput(prompt, analystAgents)
 	prompt = researchers.AppendManagerOutput(prompt, researcherAgents)
 
-	slog.Info("Running trader agent", "ticker", ticker)
+	slog.Info("Running trader agent", "ticker", position.Ticker)
 
 	res, err := llm.Generate(ctx, prompt, opts...)
 	if err != nil {

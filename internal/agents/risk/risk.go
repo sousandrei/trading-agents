@@ -9,14 +9,15 @@ import (
 	"github.com/sousandrei/trading-agents/internal/agents/analysts"
 	"github.com/sousandrei/trading-agents/internal/agents/trader"
 	"github.com/sousandrei/trading-agents/internal/tools/llms"
+	"github.com/sousandrei/trading-agents/internal/types"
 )
 
 func Run(
 	ctx context.Context,
 	llm llms.Client,
-	ticker string,
 	analystAgents map[string]agents.Agent,
 	traderAgent *agents.Agent,
+	position types.Position,
 	opts ...llms.GenerateOption,
 ) (map[string]agents.Agent, error) {
 	if opts == nil {
@@ -47,7 +48,7 @@ func Run(
 			prompt := ""
 
 			if round == 0 {
-				prompt = fmt.Sprintf("%s\nTicker to be analysed: %s", agent.Prompt, ticker)
+				prompt = fmt.Sprintf("%s\n%s", agent.Prompt, position)
 				prompt = analysts.AppendOutput(prompt, analystAgents)
 				prompt = trader.AppendOutput(prompt, traderAgent)
 			} else {
@@ -62,7 +63,7 @@ func Run(
 
 			opts := append(opts, llms.WithMessages(agent.Messages))
 
-			slog.Info("Running risk agent", "name", name, "round", round, "ticker", ticker)
+			slog.Info("Running risk agent", "name", name, "round", round, "ticker", position.Ticker)
 
 			res, err := llm.Generate(ctx, prompt, opts...)
 			if err != nil {

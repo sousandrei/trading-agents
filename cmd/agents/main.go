@@ -12,6 +12,7 @@ import (
 	"github.com/sousandrei/trading-agents/internal/tools/finnhub"
 	"github.com/sousandrei/trading-agents/internal/tools/gemini"
 	"github.com/sousandrei/trading-agents/internal/tools/simfin"
+	"github.com/sousandrei/trading-agents/internal/types"
 )
 
 func main() {
@@ -58,7 +59,13 @@ func main() {
 		return
 	}
 
-	res, err := orchestrator.Analyze(ctx, geminiClient, "NVDA")
+	positionsStr := "NVDA:118.93:10;AAPL:175.05;INTL"
+	positions, err := types.ParsePositions(positionsStr)
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := orchestrator.Analyze(ctx, geminiClient, positions)
 	if err != nil {
 		log.Println("failed to analyze: ", slog.Any("err", err))
 		return

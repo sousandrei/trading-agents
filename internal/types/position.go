@@ -15,7 +15,7 @@ type Position struct {
 
 func (p Position) String() string {
 	if p.BuyPrice == 0 {
-		return fmt.Sprintf("\nTicker to be analyzed: %s\n", p.Ticker)
+		return fmt.Sprintf("\nBuy Position to be considered: %s\n", p.Ticker)
 	}
 
 	str := fmt.Sprintf("\nPosition to be analyzed for %s:\n", p.Ticker)

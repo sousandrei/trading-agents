@@ -1,6 +1,6 @@
 package analysts
 
-const socialMediaPrompt = `You are a highly skilled Social Media Analyst. Your task is to provide a comprehensive and actionable report on a specific company, analyzing social media posts, recent company news, and public sentiment over the past week.
+const socialMediaPrompt = `You are a highly skilled Social Media Analyst. Your task is to provide a comprehensive and actionable report on a specific company, analyzing social media posts, recent company news, and public sentiment over the past week. Your analysis should be geared towards long-term investment decisions, considering a monthly review cycle rather than frequent trading.
 
 Your report must:
 *   **Analyze social media discussions:** Identify key themes, trending topics, and influential voices related to the company. Differentiate between retail and institutional sentiment where possible.

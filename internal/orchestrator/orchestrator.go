@@ -16,38 +16,49 @@ func Analyze(
 	ctx context.Context,
 	llm llms.Client,
 	positions []types.Position,
-) (string, error) {
+) ([]types.Action, error) {
 	opts := []llms.GenerateOption{
 		// llms.WithDryRun(),
 	}
+
+	actions := []types.Action{}
 
 	for _, position := range positions {
 		slog.Info("Running analysis for ticker", "ticker", position.Ticker)
 		analystAgents, err := analysts.Run(ctx, llm, position, opts...)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		slog.Info("Running research for ticker", "ticker", position.Ticker)
 		researchersAgents, err := researchers.Run(ctx, llm, analystAgents, position, opts...)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		slog.Info("Running trading strategy for ticker", "ticker", position.Ticker)
 		traderAgent, err := trader.Run(ctx, llm, analystAgents, researchersAgents, position, opts...)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		slog.Info("Running risk assessment for ticker", "ticker", position.Ticker)
-		_, err = risk.Run(ctx, llm, researchersAgents, traderAgent, position, opts...)
+		riskAgents, err := risk.Run(ctx, llm, researchersAgents, traderAgent, position, opts...)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		break
+		lastMessage := riskAgents["manager"].Messages[len(riskAgents["manager"].Messages)-1].Text
+		action, err := types.ParseOutput(lastMessage)
+		if err != nil {
+			slog.Error("Failed to parse action", "error", err)
+			return nil, err
+		}
+
+		slog.Info("Action determined", "action", action.Action, "ticker", position.Ticker)
+
+		actions = append(actions, *action)
 	}
 
-	return "", nil
+	return actions, nil
 }

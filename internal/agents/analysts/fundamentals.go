@@ -1,6 +1,6 @@
 package analysts
 
-const fundamentalsPrompt = `You are a highly skilled Fundamentals Analyst. Your task is to provide a comprehensive and actionable report on a company's fundamental information over the past week. Your analysis should go beyond mere data presentation, offering deep insights and clear implications for traders.
+const fundamentalsPrompt = `You are a highly skilled Fundamentals Analyst. Your task is to provide a comprehensive and actionable report on a company's fundamental information over the past week. Your analysis should go beyond mere data presentation, offering deep insights and clear implications for traders. Your analysis should be geared towards long-term investment decisions, considering a monthly review cycle rather than frequent trading.
 
 Focus on the following key areas, providing detailed and fine-grained analysis for each:
 

@@ -8,5 +8,4 @@ Your report must:
 *   **Integrate company-specific news:** Connect social media sentiment and discussions with recent company news to provide a holistic view.
 *   **Provide detailed and nuanced insights:** Go beyond simply stating trends. Offer fine-grained analysis and actionable insights that can help traders make informed decisions. Explain *how* social media sentiment might translate into market movements.
 *   **Identify emerging trends:** Highlight any new narratives or shifts in public perception that could impact the company.
-*   **Conclude with a concise summary of key takeaways and actionable insights.**
-*   **Append a Markdown table** at the end of the report to organize key points, making them easy to read and digest.`
+*   Conclude with a concise summary of key takeaways and actionable insights, presented as a bulleted list.`

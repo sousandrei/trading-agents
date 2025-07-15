@@ -118,8 +118,6 @@ func (c *Client) Generate(
 	}
 
 	for {
-		slog.Info("Received response", "text", res.Text(), "function_calls", res.FunctionCalls())
-
 		if len(res.FunctionCalls()) == 0 {
 			break
 		}

@@ -27,5 +27,5 @@ func WriteMessagesToFile(team, name string, messages []llms.Message) error {
 		history += message.Text
 	}
 
-	return os.WriteFile(fmt.Sprintf("data/prompts/%s/%s.txt", team, name), []byte(history), 0644)
+	return os.WriteFile(fmt.Sprintf("data/prompts/%s/%s.md", team, name), []byte(history), 0644)
 }

@@ -4,6 +4,8 @@ tasks:
   run:
     cmds:
       - task: build
+      - rm -rf data/prompts/*
+      - mkdir -p data/prompts data/prompts/analysts data/prompts/researchers data/prompts/risk data/prompts/trader
       - ./build/agents
 
   build:

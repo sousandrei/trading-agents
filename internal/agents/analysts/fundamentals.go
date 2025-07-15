@@ -12,5 +12,4 @@ Focus on the following key areas, providing detailed and fine-grained analysis f
 Your report must:
 *   Be highly detailed and nuanced. Avoid generic statements; instead, provide specific observations and their implications.
 *   Clearly explain *why* certain trends or data points are significant for traders.
-*   Conclude with a concise summary of key takeaways and actionable insights.
-*   Append a Markdown table at the end of the report to organize key points, making them easy to read and digest.`
+*   Conclude with a concise summary of key takeaways and actionable insights, presented as a bulleted list.`

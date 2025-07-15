@@ -111,7 +111,7 @@ func AppendOutput(prompt string, risk map[string]agents.Agent) string {
 
 	for round := range 3 {
 		for _, name := range []string{"aggressive", "conservative", "neutral"} {
-			prompt += fmt.Sprintf("\n\n%s: %s", name, modelMessages[name][round].Text)
+			prompt += fmt.Sprintf("\n\n#### %s Risk Analyst Argument (Round %d):\n%s", name, round+1, modelMessages[name][round].Text)
 		}
 	}
 

@@ -97,7 +97,7 @@ func AppendOutput(prompt string, analysts map[string]agents.Agent) string {
 				continue
 			}
 
-			prompt += fmt.Sprintf("\n\n%s analyst: %s", name, message.Text)
+			prompt += fmt.Sprintf("\n\n### %s Analyst Report:\n%s", name, message.Text)
 		}
 	}
 

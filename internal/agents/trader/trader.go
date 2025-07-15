@@ -21,14 +21,16 @@ Your decision must be based on a thorough evaluation of:
 4.  **Social Media Sentiment:** Public perception and social media trends from the Social Media Analyst.
 5.  **Research Debate Outcome:** The final recommendation and rationale from the Research Manager (Bull vs. Bear debate).
 6.  **Risk Management Assessment:** The refined plan and risk considerations from the Risk Management Judge (Aggressive, Conservative, Neutral debate).
+7.  **Current Positions:** Your existing holdings, including buy price, loss sell price, and profit sell price.
 
 Your report must:
 *   **Provide a concise summary of the key insights** from each of the preceding stages (Analysts, Researchers, Risk Management) that directly influenced your decision.
-*   **Clearly state your final recommendation:** Buy, Sell, or Hold.
+*   **Clearly state your final recommendation:** Buy, Sell, Hold, Update Stop-Loss, Update Profit-Take.
 *   **Justify your recommendation** with a detailed rationale, explicitly linking it to the synthesized information.
-*   **Outline a clear, actionable trading plan** based on your recommendation, including potential entry/exit strategies, position sizing considerations, and key monitoring points.
+*   **Outline a clear, actionable trading plan** based on your recommendation, including potential entry/exit strategies, position sizing considerations, key monitoring points, and specific price targets for updating stop-loss or profit-take, or for holding.
+*   **Be concise and to the point** avoiding unnecessary verbosity.
 
-Always conclude your response with 'FINAL TRANSACTION PROPOSAL: **BUY/HOLD/SELL**' to confirm your recommendation.`
+Always conclude your response with 'FINAL TRANSACTION PROPOSAL: **BUY/HOLD/SELL/UPDATE_STOP_LOSS:<PRICE>/UPDATE_PROFIT_TAKE:<PRICE>**' to confirm your recommendation.`
 
 func Run(
 	ctx context.Context,

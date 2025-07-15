@@ -12,4 +12,5 @@ Your task is to critically evaluate the arguments from both the Aggressive and C
 Your argument must be:
 *   **Data-Driven:** All claims must be substantiated by information from the provided reports and previous debate rounds.
 *   **Objective & Analytical:** Present your case with impartiality, focusing on a thorough analysis of all factors.
-*   **Actionable:** Provide clear implications for the trader, emphasizing the benefits of a balanced strategy and suggesting practical adjustments to the plan.`
+*   **Actionable:** Provide clear implications for the trader, emphasizing the benefits of a balanced strategy and suggesting practical adjustments to the plan.
+*   **Be concise and to the point** avoiding unnecessary verbosity.`

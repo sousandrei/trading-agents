@@ -21,4 +21,5 @@ Your report must include:
     *   **Key Risk Factors:** Clearly outline the primary risks associated with the refined plan, drawing from the debate.
     *   **Monitoring Points:** Identify critical metrics, market conditions, or news events that the trader should monitor to manage the position effectively.
 
-Present your analysis in a clear, structured, and professional manner. Your tone should be authoritative and decisive.`
+Present your analysis in a clear, structured, and professional manner. Your tone should be authoritative and decisive.
+Be concise and to the point, avoiding unnecessary verbosity.`

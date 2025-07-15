@@ -8,4 +8,5 @@ Your report must:
 *   **Provide detailed and nuanced insights:** Go beyond simply stating trends. Offer fine-grained analysis and actionable insights that can help traders make informed decisions. Consider both short-term and long-term implications.
 *   **Include forward-looking statements:** Based on current news, discuss potential future developments or risks.
 *   **Utilize diverse sources:** Ensure comprehensiveness by considering news from various sources (e.g., EODHD, Finnhub, major financial news outlets).
+*   **Be concise and to the point** avoiding unnecessary verbosity.
 *   Conclude with a concise summary of key takeaways and actionable insights, presented as a bulleted list.`

@@ -2,10 +2,13 @@ package main
 
 import (
 	"time"
+
+	"github.com/sousandrei/trading-agents/internal/server"
 )
 
 type Config struct {
-	Port      int    `env:"PORT" envDefault:"3001"`
+	Server server.Config `envPrefix:"SERVER_"`
+
 	LogFormat string `env:"LOG_FORMAT" envDefault:"text"`
 
 	LLMProvider string `env:"LLM_PROVIDER" envDefault:"gemini"`

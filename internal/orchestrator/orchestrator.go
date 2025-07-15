@@ -12,53 +12,56 @@ import (
 	"github.com/sousandrei/trading-agents/internal/types"
 )
 
-func Analyze(
+type Orchestrator struct {
+	llm llms.Client
+}
+
+func New(llm llms.Client) *Orchestrator {
+	return &Orchestrator{
+		llm: llm,
+	}
+}
+
+func (o *Orchestrator) Analyze(
 	ctx context.Context,
-	llm llms.Client,
-	positions []types.Position,
-) ([]types.Action, error) {
+	position types.Position,
+) (*types.Action, error) {
 	opts := []llms.GenerateOption{
 		// llms.WithDryRun(),
 	}
 
-	actions := []types.Action{}
-
-	for _, position := range positions {
-		slog.Info("Running analysis for ticker", "ticker", position.Ticker)
-		analystAgents, err := analysts.Run(ctx, llm, position, opts...)
-		if err != nil {
-			return nil, err
-		}
-
-		slog.Info("Running research for ticker", "ticker", position.Ticker)
-		researchersAgents, err := researchers.Run(ctx, llm, analystAgents, position, opts...)
-		if err != nil {
-			return nil, err
-		}
-
-		slog.Info("Running trading strategy for ticker", "ticker", position.Ticker)
-		traderAgent, err := trader.Run(ctx, llm, analystAgents, researchersAgents, position, opts...)
-		if err != nil {
-			return nil, err
-		}
-
-		slog.Info("Running risk assessment for ticker", "ticker", position.Ticker)
-		riskAgents, err := risk.Run(ctx, llm, researchersAgents, traderAgent, position, opts...)
-		if err != nil {
-			return nil, err
-		}
-
-		lastMessage := riskAgents["manager"].Messages[len(riskAgents["manager"].Messages)-1].Text
-		action, err := types.ParseOutput(lastMessage)
-		if err != nil {
-			slog.Error("Failed to parse action", "error", err)
-			return nil, err
-		}
-
-		slog.Info("Action determined", "action", action.Action, "ticker", position.Ticker)
-
-		actions = append(actions, *action)
+	slog.Info("Running analysis for ticker", "ticker", position.Ticker)
+	analystAgents, err := analysts.Run(ctx, o.llm, position, opts...)
+	if err != nil {
+		return nil, err
 	}
 
-	return actions, nil
+	slog.Info("Running research for ticker", "ticker", position.Ticker)
+	researchersAgents, err := researchers.Run(ctx, o.llm, analystAgents, position, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	slog.Info("Running trading strategy for ticker", "ticker", position.Ticker)
+	traderAgent, err := trader.Run(ctx, o.llm, analystAgents, researchersAgents, position, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	slog.Info("Running risk assessment for ticker", "ticker", position.Ticker)
+	riskAgents, err := risk.Run(ctx, o.llm, researchersAgents, traderAgent, position, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	lastMessage := riskAgents["manager"].Messages[len(riskAgents["manager"].Messages)-1].Text
+	action, err := types.ParseOutput(position.Ticker, lastMessage)
+	if err != nil {
+		slog.Error("Failed to parse action", "error", err)
+		return nil, err
+	}
+
+	slog.Info("Action determined", "action", action.Action, "ticker", position.Ticker)
+
+	return action, nil
 }

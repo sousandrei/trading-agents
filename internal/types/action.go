@@ -7,10 +7,11 @@ import (
 )
 
 type Action struct {
-	Action string
-	Price  string
-	Loss   string
-	Profit string
+	Ticker string `json:"ticker"`
+	Action string `json:"action"`
+	Price  string `json:"price,omitempty"`
+	Loss   string `json:"loss,omitempty"`
+	Profit string `json:"profit,omitempty"`
 }
 
 func (a Action) String() string {
@@ -32,7 +33,7 @@ func priceRegexp(label string) *regexp.Regexp {
 	return regexp.MustCompile(fmt.Sprintf(`%s:\s([0-9]{0,4}.[0-9]{0,2})`, label))
 }
 
-func ParseOutput(output string) (*Action, error) {
+func ParseOutput(ticker, output string) (*Action, error) {
 	parts := strings.Split(output, "FINAL TRANSACTION PROPOSAL: ")
 
 	if len(parts) < 2 {
@@ -53,6 +54,7 @@ func ParseOutput(output string) (*Action, error) {
 		price := strings.TrimSpace(priceMatches[1])
 
 		return &Action{
+			Ticker: ticker,
 			Action: "BUY",
 			Price:  price,
 		}, nil
@@ -62,6 +64,7 @@ func ParseOutput(output string) (*Action, error) {
 		price := strings.TrimSpace(priceMatches[1])
 
 		return &Action{
+			Ticker: ticker,
 			Action: "SELL",
 			Price:  price,
 		}, nil
@@ -74,6 +77,7 @@ func ParseOutput(output string) (*Action, error) {
 		profit := strings.TrimSpace(profitStr[1])
 
 		return &Action{
+			Ticker: ticker,
 			Action: "UPDATE_STOPS",
 			Loss:   loss,
 			Profit: profit,
@@ -81,6 +85,7 @@ func ParseOutput(output string) (*Action, error) {
 
 	case "HOLD":
 		return &Action{
+			Ticker: ticker,
 			Action: "HOLD",
 		}, nil
 

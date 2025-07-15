@@ -6,13 +6,15 @@ import (
 	"log"
 	"log/slog"
 
-	"github.com/caarlos0/env"
+	"github.com/caarlos0/env/v11"
+
 	"github.com/sousandrei/trading-agents/internal/orchestrator"
+	"github.com/sousandrei/trading-agents/internal/server"
 	"github.com/sousandrei/trading-agents/internal/tools/apiclient"
 	"github.com/sousandrei/trading-agents/internal/tools/finnhub"
 	"github.com/sousandrei/trading-agents/internal/tools/gemini"
+	"github.com/sousandrei/trading-agents/internal/tools/llms"
 	"github.com/sousandrei/trading-agents/internal/tools/simfin"
-	"github.com/sousandrei/trading-agents/internal/types"
 )
 
 func main() {
@@ -36,40 +38,50 @@ func main() {
 
 	slog.Info("Starting Trading Agents Orchestrator")
 
+	llmClient, err := createLLMClient(ctx, cfg)
+	if err != nil {
+		log.Println("failed to create LLM client: ", slog.Any("err", err))
+		return
+	}
+
+	o := orchestrator.New(llmClient)
+
+	s := server.New(ctx, cfg.Server, o.Handler)
+	go func() {
+		slog.Info("Starting server", slog.String("addr", s.Addr))
+		if err := s.ListenAndServe(); err != nil {
+			log.Println("failed to start server: ", slog.Any("err", err))
+			return
+		}
+		slog.Info("Server stopped")
+	}()
+
+	<-ctx.Done()
+
+}
+
+func createLLMClient(ctx context.Context, cfg Config) (llms.Client, error) {
 	finnhubClient, err := finnhub.New(cfg.FinnhubAPIKey, apiclient.WithCache("data/finnhub.bin"))
 	if err != nil {
-		log.Println("failed to create Finnhub client: ", slog.Any("err", err))
-		return
+		return nil, fmt.Errorf("failed to create Finnhub client: %w", err)
 	}
 
 	simfinClient, err := simfin.New(cfg.SimfinAPIKey, apiclient.WithCache("data/simfin.bin"))
 	if err != nil {
-		log.Println("failed to create Simfin client: ", slog.Any("err", err))
-		return
+		return nil, fmt.Errorf("failed to create Simfin client: %w", err)
 	}
 
-	geminiClient, err := gemini.New(
-		ctx,
-		finnhubClient,
-		simfinClient,
-		cfg.LLMModel,
-	)
-	if err != nil {
-		log.Println("failed to create Gemini client: ", slog.Any("err", err))
-		return
+	switch cfg.LLMProvider {
+	case "gemini":
+		return gemini.New(
+			ctx,
+			finnhubClient,
+			simfinClient,
+			cfg.LLMModel,
+		)
+	case "ollama":
+		return nil, fmt.Errorf("support for Ollama is not implemented yet")
+	default:
+		return nil, fmt.Errorf("unsupported LLM provider: %s", cfg.LLMProvider)
 	}
-
-	positionsStr := "NVDA:118.93:10;AAPL:175.05;INTL"
-	positions, err := types.ParsePositions(positionsStr)
-	if err != nil {
-		panic(err)
-	}
-
-	res, err := orchestrator.Analyze(ctx, geminiClient, positions)
-	if err != nil {
-		log.Println("failed to analyze: ", slog.Any("err", err))
-		return
-	}
-
-	fmt.Println("Finall Result:", res)
 }

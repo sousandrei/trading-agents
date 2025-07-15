@@ -1,6 +1,8 @@
 package llms
 
-import "context"
+import (
+	"context"
+)
 
 type Role string
 
